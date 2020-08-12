@@ -28,6 +28,8 @@ export const store = new Vuex.Store({
 			//					"https://lh3.googleusercontent.com/Fz39aYpbmWRecg8J8xz5_fawupvXR9u9vxsCobQ5R4x_nzuYOeXO_WVm301YRdF182bOU8XoXIjE8gPTr51Vi8SU=s149",
 			//			},
 		],
+		news: [],
+		loaded: true,
 	},
 	getters: {
 		nextId(state) {
@@ -35,6 +37,12 @@ export const store = new Vuex.Store({
 		},
 		allFeeds(state) {
 			return state.feeds;
+		},
+		allNews(state) {
+			return state.news;
+		},
+		loaded(state) {
+			return state.loaded;
 		},
 	},
 	mutations: {
@@ -49,6 +57,15 @@ export const store = new Vuex.Store({
 		},
 		retrieveFeeds(state, feeds) {
 			state.feeds = feeds;
+		},
+		retrieveNews(state, news) {
+			state.news = news;
+		},
+		moreNews(state, news) {
+			state.news = state.news.concat(news);
+		},
+		changeLoaded(state, loaded) {
+			state.loaded = loaded;
 		},
 	},
 	actions: {
@@ -70,6 +87,33 @@ export const store = new Vuex.Store({
 			try {
 				const response = await axios.get("/all");
 				context.commit("retrieveFeeds", response.data);
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		async retrieveNews(context) {
+			try {
+				const response = await axios.get("/sbsNews");
+				context.commit("retrieveNews", response.data);
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		async moreNews(context) {
+			try {
+				console.log(context.getters.allNews);
+				context.commit("changeLoaded", false);
+				const response = await axios.get("/sbsNews?", {
+					params: {
+						lastdate:
+							context.getters.allNews[
+								context.getters.allNews.length - 1
+							].updated,
+					},
+				});
+				context.commit("moreNews", response.data);
+				console.log(context.getters.allNews);
+				context.commit("changeLoaded", true);
 			} catch (error) {
 				console.log(error);
 			}
