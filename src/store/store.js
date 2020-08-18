@@ -113,9 +113,10 @@ export const store = new Vuex.Store({
 				});
 				context.commit("moreNews", response.data);
 				console.log(context.getters.allNews);
-				context.commit("changeLoaded", true);
 			} catch (error) {
 				console.log(error);
+			} finally {
+				context.commit("changeLoaded", true);
 			}
 		},
 	},
